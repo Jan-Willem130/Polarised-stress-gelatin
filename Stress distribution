@@ -1,13 +1,13 @@
-% Define parameters
+% Parameters
 clear all
 close all
-I0 = 255;       % Maximum detected light intensity
-h = 0.025;      % Material thickness (in meters)
-f_sigma = 625; % Material fringe value
-block_size = 10; % Size of each block in pixels
+I0 = 255;      % Maximum detected light intensity
+h = 0.04;      % Material thickness (in meters)
+f_sigma = 2416; % Material fringe value
+block_size = 5; % Size of each block in pixels
 
-% Load the image (replace 'yo.jpg' with your image file path)
-img = imread('your image');
+% Load image 
+img = imread('0.7compress.jpg');
 img_gray = double(rgb2gray(img)); % Convert to grayscale and double precision
 [rows, cols] = size(img_gray);
 
@@ -48,7 +48,7 @@ min_stress = 0; % Set minimum stress value to 0
 max_stress = max(sigma1_est(:)); % Maximum stress value
 
 % Display the original image
-figure;
+figure('Color', 'k'); % Set figure background to black
 imshow(img);
 hold on;
 
@@ -83,7 +83,9 @@ colorbar; % Display main colorbar
 caxis([min_stress, max_stress]); % Set colorbar limits to range from 0 to max stress
 colorbar_ticks = linspace(min_stress, max_stress, 5); % Define custom ticks
 colorbar_tick_labels = arrayfun(@(x) sprintf('%.2f', x), colorbar_ticks, 'UniformOutput', false); % Create tick labels
-colorbar('YTick', colorbar_ticks, 'YTickLabel', colorbar_tick_labels); % Set custom ticks and labels
+hColorbar = colorbar('YTick', colorbar_ticks, 'YTickLabel', colorbar_tick_labels); % Set custom ticks and labels
 
+% Set colorbar and axis properties for black background and white text
+set(hColorbar, 'Color', 'w'); % Set colorbar text to white
+set(gca, 'Color', 'k', 'XColor', 'w', 'YColor', 'w', 'FontSize', 14); % Set axis background to black, text to white, and increase font size
 hold off;
-title('Original Image with Color-Coded Principal Stresses');
