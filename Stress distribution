@@ -1,55 +1,69 @@
 % Parameters
 clear all
 close all
-I0 = 255;      % Maximum detected light intensity
-h = 0.04;      % Material thickness (in meters)
-f_sigma = 2416; % Material fringe value
-block_size = 5; % Size of each block in pixels
+I0 = 255;      % Maximum pixel intensity
+h = 2;      % Material thickness(in meters)
+f_sigma = 500 ; % Material fringe value (in N/m)
+block_size = 20; % Size of each block in pixels
 
-% Load image 
-img = imread('0.7compress.jpg');
-img_gray = double(rgb2gray(img)); % Convert to grayscale and double precision
-[rows, cols] = size(img_gray);
 
-% Initialize arrays for estimated principal stresses
+
+
+
+
+% Load your image 
+image = imread('fringes1.png');
+image_gray = double(rgb2gray(image)); % Convert to grayscale and double precision
+[rows, cols] = size(image_gray);
+
+
+
+% Initialize arrays for the estimated principal stresses
 sigma1_est = zeros(rows, cols);
 sigma2_est = zeros(rows, cols);
 
-% Process the image in blocks
+
+
+
+% Process the image into blocks
 for r = 1:block_size:rows
     for c = 1:block_size:cols
         % Define the current block indices
         r_end = min(r + block_size - 1, rows);
         c_end = min(c + block_size - 1, cols);
-        
-        % Extract the current block from the grayscale image
-        block_gray = img_gray(r:r_end, c:c_end);
+         % Extract the current block from the grayscale image
+        block_gray = image_gray(r:r_end, c:c_end);
         
         % Compute the average intensity of the block
         I_block = mean(block_gray(:));
         
-        % Calculate the stress values using the provided formula
+        % Calculate the stress values 
         stress_diff = (f_sigma / (pi * h)) * (asin(sqrt(I_block / I0)));
-        
-        % Estimate sigma1 and sigma2 (assuming sigma1 > sigma2)
+       
+        % Estimate sigma 1 and sigma 2 (assuming that sigma1> sigma2)
         sigma1_est(r, c) = stress_diff / 2;
         sigma2_est(r, c) = -stress_diff / 2;
     end
 end
 
 % Determine the maximum intensity value in the grayscale image
-I_max = max(img_gray(:));
+I_max = max(image_gray(:));
 
-% Display the maximum intensity value
-disp(['Maximum intensity value (I_max) measured from the image: ', num2str(I_max)]);
 
-% Define stress range for color mapping
+
+
+% Display the maximum intensity
+disp(['Maximum intensity value measured from the image: ', num2str(I_max)]);
+
+
+
+% Define stress range for the colour mapping
 min_stress = 0; % Set minimum stress value to 0
 max_stress = max(sigma1_est(:)); % Maximum stress value
 
 % Display the original image
 figure('Color', 'k'); % Set figure background to black
-imshow(img);
+imshow(image);
 hold on;
 
 % Display color-coded blocks based on estimated stresses
@@ -58,34 +72,48 @@ for r = 1:block_size:rows
         % Calculate stress values for the current block
         stress_sigma1 = sigma1_est(r, c);
         stress_sigma2 = sigma2_est(r, c);
-        
+       
+
+
         % Map stress values to colormap index (jet colormap)
-        color_val = (stress_sigma1 - min_stress) / (max_stress - min_stress); % Normalize to [0, 1]
-        color_index = round(color_val * 255) + 1; % Map to colormap index
+        colour_val = (stress_sigma1 - min_stress) / (max_stress - min_stress); % Normalize to [0, 1]
+        colour_index = round(colour_val * 255) + 1; % Map to colormap index
+      % Get RGB color from jet colormap based on color_index
+        colourmap_jet = jet(256);
+        block_colour = colourmap_jet(colour_index, :);
         
-        % Get RGB color from jet colormap based on color_index
-        colormap_jet = jet(256);
-        block_color = colormap_jet(color_index, :);
+        
         
         % Define block coordinates
         block_coords = [c, r, block_size, block_size];
         
-        % Draw colored rectangle (block) on the image
-        rectangle('Position', block_coords, 'FaceColor', block_color, 'EdgeColor', 'none');
+        
+        
+        % Draw coloured rectangle (block) onto the image
+        rectangle('Position', block_coords, 'FaceColor', block_colour, 'EdgeColor', 'none');
     end
+
+
 end
 
-% Create main color scale legend (colorbar)
-colormap(gca, jet); % Use jet colormap for stress visualization
-colorbar; % Display main colorbar
+% Create a main colour scale legend for colour bar
+colormap(gca, jet); % Use the jet colourmap for stress visualization
+colorbar; % Display  the main colourbar
 
-% Customize colorbar ticks and labels
-caxis([min_stress, max_stress]); % Set colorbar limits to range from 0 to max stress
-colorbar_ticks = linspace(min_stress, max_stress, 5); % Define custom ticks
-colorbar_tick_labels = arrayfun(@(x) sprintf('%.2f', x), colorbar_ticks, 'UniformOutput', false); % Create tick labels
-hColorbar = colorbar('YTick', colorbar_ticks, 'YTickLabel', colorbar_tick_labels); % Set custom ticks and labels
 
-% Set colorbar and axis properties for black background and white text
-set(hColorbar, 'Color', 'w'); % Set colorbar text to white
-set(gca, 'Color', 'k', 'XColor', 'w', 'YColor', 'w', 'FontSize', 14); % Set axis background to black, text to white, and increase font size
+
+
+
+% Customize the colourbar ticks and labels
+clim([min_stress, max_stress]); % Set colorbar limits to range from 0 to max stress
+colourbar_ticks = linspace(min_stress, max_stress, 5); % Define custom ticks
+colourbar_tick_labels = arrayfun(@(x) sprintf('%.2f', x), colourbar_ticks, 'UniformOutput', false); % Create tick labels
+hColourbar = colorbar('YTick', colourbar_ticks, 'YTickLabel', colourbar_tick_labels); % Set custom ticks and labels
+
+
+
+
+% Set the colourbar
+set(hColourbar, 'Color', 'w'); % Set the colourbar text to white
+set(gca, 'Color', 'k', 'XColor', 'w', 'YColor', 'w', 'FontSize', 14); % Set the axis background to black, the text to white and increase the font size
 hold off;
