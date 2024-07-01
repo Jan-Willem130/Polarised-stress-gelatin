@@ -2,8 +2,8 @@
 clear all
 close all
 I0 = 255;      % Maximum pixel intensity
-h = 2;      % Material thickness(in meters)
-f_sigma = 500 ; % Material fringe value (in N/m)
+h = [];      % Material thickness(in meters)
+f_sigma = [] ; % Material fringe value (in N/m)
 block_size = 20; % Size of each block in pixels
 
 
@@ -12,7 +12,7 @@ block_size = 20; % Size of each block in pixels
 
 
 % Load your image 
-image = imread('fringes1.png');
+image = imread('your image');
 image_gray = double(rgb2gray(image)); % Convert to grayscale and double precision
 [rows, cols] = size(image_gray);
 
